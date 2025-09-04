@@ -53,7 +53,7 @@ Follow these steps to get the development environment running locally.
 ### 2. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Selsinee/luma-backend.git
 cd luma-backend
 ```
 
