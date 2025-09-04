@@ -1,0 +1,13 @@
+# Virtual Environment
+venv/
+__pycache__/
+
+# Environment variables - VERY IMPORTANT
+.env
+
+# VS Code settings
+.vscode/
+
+# Other common Python files
+*.pyc
+.pytest_cache/
