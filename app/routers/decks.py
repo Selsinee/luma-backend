@@ -23,8 +23,8 @@ def get_db():
         db.close()
 
 
-@router.post("/", response_model=schemas.Deck)
-def create_deck_endpoint(
+@router.post("/", response_model=schemas.Deck, operation_id="create_deck")
+def create_deck(
     deck: schemas.DeckCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user),
@@ -35,8 +35,8 @@ def create_deck_endpoint(
     return crud.create_deck(db=db, deck=deck, user_id=current_user.id)
 
 
-@router.get("/", response_model=List[schemas.Deck])
-def read_decks_for_user_endpoint(
+@router.get("/", response_model=List[schemas.Deck], operation_id="get_decks_by_user")
+def read_decks_for_user(
     category: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user),
@@ -48,8 +48,8 @@ def read_decks_for_user_endpoint(
     return crud.get_decks_by_user(db, user_id=current_user.id, category=category)
 
 
-@router.get("/{deck_id}", response_model=schemas.DeckDetail)
-def read_deck_endpoint(
+@router.get("/{deck_id}", response_model=schemas.DeckDetail, operation_id="get_deck_by_id")
+def read_deck(
     deck_id: str,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user),
@@ -81,8 +81,8 @@ def read_deck_endpoint(
     return deck_details
 
 
-@router.put("/{deck_id}", response_model=schemas.Deck)
-def update_deck_endpoint(
+@router.put("/{deck_id}", response_model=schemas.Deck, operation_id="update_deck")
+def update_deck(
     deck_id: str,
     deck_update: schemas.DeckUpdate,
     db: Session = Depends(get_db),
@@ -100,8 +100,8 @@ def update_deck_endpoint(
     return crud.update_deck(db, deck_id=deck_id, deck_update=deck_update)
 
 
-@router.delete("/{deck_id}", response_model=schemas.Deck)
-def delete_deck_endpoint(
+@router.delete("/{deck_id}", response_model=schemas.Deck, operation_id="delete_deck")
+def delete_deck(
     deck_id: str,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user),

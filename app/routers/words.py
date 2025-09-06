@@ -21,8 +21,8 @@ def get_db():
         db.close()
 
 
-@router.post("/", response_model=schemas.Word)
-def create_word_for_deck_endpoint(
+@router.post("/", response_model=schemas.Word, operation_id="create_word")
+def create_word_for_deck(
     deck_id: str,
     word: schemas.WordCreate,
     db: Session = Depends(get_db),
@@ -41,8 +41,8 @@ def create_word_for_deck_endpoint(
     return crud.create_word(db=db, word=word, deck_id=deck_id)
 
 
-@router.put("/{word_id}", response_model=schemas.Word)
-def update_word_endpoint(
+@router.put("/{word_id}", response_model=schemas.Word, operation_id="update_word")
+def update_word(
     deck_id: str,
     word_id: str,
     word: schemas.WordUpdate,
@@ -66,8 +66,8 @@ def update_word_endpoint(
     return db_word
 
 
-@router.delete("/{word_id}", response_model=schemas.Word)
-def delete_word_endpoint(
+@router.delete("/{word_id}", response_model=schemas.Word, operation_id="delete_word")
+def delete_word(
     deck_id: str,
     word_id: str,
     db: Session = Depends(get_db),

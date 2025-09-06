@@ -20,8 +20,8 @@ def get_db():
         db.close()
 
 
-@router.post("/sessions", response_model=schemas.StudySession)
-def create_study_session_endpoint(
+@router.post("/sessions", response_model=schemas.StudySession, operation_id="log_study_session")
+def create_study_session(
     session: schemas.StudySessionCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user),
@@ -37,8 +37,8 @@ def create_study_session_endpoint(
     return crud.create_study_session(db=db, session=session, user_id=current_user.id)
 
 
-@router.put("/progress/{word_id}", response_model=schemas.UserWordProgress)
-def update_word_progress_endpoint(
+@router.put("/progress/{word_id}", response_model=schemas.UserWordProgress, operation_id="update_word_progress")
+def update_word_progress(
     word_id: str,
     progress: schemas.UserWordProgressUpdate,
     db: Session = Depends(get_db),

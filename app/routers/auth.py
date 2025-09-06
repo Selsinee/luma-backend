@@ -46,7 +46,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 # --- API Endpoints ---
 
-@router.post("/register", response_model=schemas.Token)
+@router.post("/register", response_model=schemas.Token, operation_id="register")
 def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     """
     Creates a new user account and returns an access token.
@@ -67,7 +67,7 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer", "user": new_user}
 
 
-@router.post("/login", response_model=schemas.Token)
+@router.post("/login", response_model=schemas.Token, operation_id="login")
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
     Authenticates a user and returns an access token.
@@ -88,7 +88,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     return {"access_token": access_token, "token_type": "bearer", "user": user}
 
 
-@router.post("/google", response_model=schemas.Token)
+@router.post("/google", response_model=schemas.Token, operation_id="login_google")
 def auth_google(google_token: schemas.GoogleToken, db: Session = Depends(get_db)):
     """
     (Placeholder) Authenticates or registers a user via a Google OAuth token.

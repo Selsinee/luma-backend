@@ -22,7 +22,7 @@ def get_db():
         db.close()
 
 
-@router.get("/me", response_model=schemas.User)
+@router.get("/me", response_model=schemas.User, operation_id="get_user")
 def read_users_me(current_user: models.User = Depends(get_current_active_user)):
     """
     Fetches the profile data for the currently authenticated user.
@@ -30,7 +30,7 @@ def read_users_me(current_user: models.User = Depends(get_current_active_user)):
     return current_user
 
 
-@router.put("/me", response_model=schemas.User)
+@router.put("/me", response_model=schemas.User, operation_id="update_user")
 def update_user_me(
     profile_update: schemas.UserProfileUpdate,
     db: Session = Depends(get_db),
@@ -42,7 +42,7 @@ def update_user_me(
     return crud.update_user_profile(db=db, user=current_user, profile_update=profile_update)
 
 
-@router.put("/me/settings", response_model=schemas.User)
+@router.put("/me/settings", response_model=schemas.User, operation_id="update_settings")
 def update_user_me_settings(
     settings_update: schemas.UserSettingsUpdate,
     db: Session = Depends(get_db),
@@ -54,7 +54,7 @@ def update_user_me_settings(
     return crud.update_user_settings(db=db, user=current_user, settings_update=settings_update)
 
 
-@router.get("/me/achievements", response_model=List[schemas.AchievementDetail])
+@router.get("/me/achievements", response_model=List[schemas.AchievementDetail], operation_id="get_achievements")
 def read_user_me_achievements(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user)
@@ -65,7 +65,7 @@ def read_user_me_achievements(
     return crud.get_achievements_for_user(db=db, user_id=current_user.id)
 
 
-@router.get("/me/stats", response_model=schemas.UserStats)
+@router.get("/me/stats", response_model=schemas.UserStats, operation_id="get_stats")
 def read_user_me_stats(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user)
