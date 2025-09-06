@@ -1,17 +1,19 @@
 # app/routers/users.py
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from typing import List
 
-from .. import schemas, crud, models
-from ..database import SessionLocal
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
+from app import crud, models, schemas
+from app.database import SessionLocal
+from app.routers.auth import get_current_active_user  # Import the dependency
 
 router = APIRouter(
     prefix="/users",
-    tags=["Users"], # This groups the endpoints in the API docs
+    tags=["Users"],
 )
 
-# Dependency to get a DB session
+# Dependency
 def get_db():
     db = SessionLocal()
     try:
@@ -19,23 +21,56 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/", response_model=schemas.User)
-def create_user_endpoint(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
 
-@router.get("/", response_model=List[schemas.User])
-def read_users_endpoint(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_users(db, skip=skip, limit=limit)
-    return users
+@router.get("/me", response_model=schemas.User)
+def read_users_me(current_user: models.User = Depends(get_current_active_user)):
+    """
+    Fetches the profile data for the currently authenticated user.
+    """
+    return current_user
 
-@router.get("/{user_id}", response_model=schemas.User)
-def read_user_endpoint(user_id: str, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
 
-# TODO: Add endpoints for creating decks for a user
+@router.put("/me", response_model=schemas.User)
+def update_user_me(
+    profile_update: schemas.UserProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """
+    Updates the profile of the currently authenticated user.
+    """
+    return crud.update_user_profile(db=db, user=current_user, profile_update=profile_update)
+
+
+@router.put("/me/settings", response_model=schemas.User)
+def update_user_me_settings(
+    settings_update: schemas.UserSettingsUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """
+    Updates user-specific settings for the currently authenticated user.
+    """
+    return crud.update_user_settings(db=db, user=current_user, settings_update=settings_update)
+
+
+@router.get("/me/achievements", response_model=List[schemas.AchievementDetail])
+def read_user_me_achievements(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """
+    Gets the list of all achievements for the currently authenticated user.
+    """
+    return crud.get_achievements_for_user(db=db, user_id=current_user.id)
+
+
+@router.get("/me/stats", response_model=schemas.UserStats)
+def read_user_me_stats(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """
+    Fetches aggregated statistics for the user's profile dashboards.
+    """
+    return crud.get_user_stats(db=db, user_id=current_user)

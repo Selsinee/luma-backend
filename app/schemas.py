@@ -1,14 +1,14 @@
-# schemas.py
+# app/schemas.py
 import uuid
 from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr
 
-from app.models import DifficultyEnum, SessionTypeEnum, StatusEnum
+from .models import DifficultyEnum, SessionTypeEnum, StatusEnum
 
-# --- Base Schemas (for shared attributes) ---
 
+# --- Base Schemas ---
 class WordBase(BaseModel):
     word: str
     definition: str
@@ -18,6 +18,12 @@ class WordBase(BaseModel):
 class WordCreate(WordBase):
     pass
 
+class WordUpdate(BaseModel):
+    word: Optional[str] = None
+    definition: Optional[str] = None
+    example: Optional[str] = None
+    difficulty: Optional[DifficultyEnum] = None
+
 class DeckBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -26,6 +32,11 @@ class DeckBase(BaseModel):
 class DeckCreate(DeckBase):
     pass
 
+class DeckUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+
 class UserBase(BaseModel):
     email: EmailStr
     full_name: str
@@ -33,8 +44,49 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+class UserProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    bio: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+class UserSettingsUpdate(BaseModel):
+    daily_goal: Optional[int] = None
+    notifications_enabled: Optional[bool] = None
+    sound_effects_enabled: Optional[bool] = None
+    dark_mode_enabled: Optional[bool] = None
+
+# --- Schemas for Stats and Achievements Responses ---
+class UserStats(BaseModel):
+    study_time_seconds: int
+    accuracy_rate: float
+    total_words_mastered: int
+    days_active: int
+
+class AchievementDetail(BaseModel):
+    id: str
+    title: str
+    description: str
+    icon_name: str
+    is_unlocked: bool
+    earned_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+# --- Schemas for Authentication ---
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: "User"
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
+
+class GoogleToken(BaseModel):
+    google_token: str
+
+
 # --- Full Schemas (for reading data from the API) ---
-# These include all fields and have from_attributes = True to work with SQLAlchemy models.
 
 class Word(WordBase):
     id: str
@@ -51,11 +103,20 @@ class Deck(DeckBase):
     class Config:
         from_attributes = True
 
+class DeckDetail(Deck):
+    mastery_percentage: float
+    words_mastered: int
+    words_learning: int
+    easy_count: int
+    medium_count: int
+    hard_count: int
+
 class User(UserBase):
     id: str
     avatar_url: Optional[str] = None
     bio: Optional[str] = None
     streak: int
+    best_streak: int
     level: int
     daily_goal: int
     notifications_enabled: bool
@@ -108,3 +169,5 @@ class UserWordProgress(BaseModel):
 
     class Config:
         from_attributes = True
+
+Token.model_rebuild()
