@@ -247,3 +247,44 @@ def delete_word(db: Session, word_id: str):
     db.delete(db_word)
     db.commit()
     return db_word
+
+def create_study_session(db: Session, session: schemas.StudySessionCreate, user_id: str):
+    """
+    Create a new study session record for a user.
+    """
+    db_session = models.StudySession(**session.model_dump(), user_id=user_id)
+    db.add(db_session)
+    db.commit()
+    db.refresh(db_session)
+    return db_session
+
+
+def update_word_progress(db: Session, word_id: str, user_id: str, progress_update: schemas.UserWordProgressUpdate):
+    """
+    Updates a user's progress for a single word. Creates the record if it doesn't exist.
+    """
+    db_progress = db.query(models.UserWordProgress).filter(
+        models.UserWordProgress.word_id == word_id,
+        models.UserWordProgress.user_id == user_id
+    ).first()
+
+    if db_progress:
+        # Update existing progress record
+        db_progress.status = progress_update.status
+        if progress_update.status == models.StatusEnum.mastered:
+             db_progress.correct_streak += 1
+        else:
+             db_progress.correct_streak = 0
+    else:
+        # Create new progress record if one doesn't exist
+        db_progress = models.UserWordProgress(
+            user_id=user_id,
+            word_id=word_id,
+            status=progress_update.status,
+            correct_streak=1 if progress_update.status == models.StatusEnum.mastered else 0
+        )
+    
+    db.add(db_progress)
+    db.commit()
+    db.refresh(db_progress)
+    return db_progress

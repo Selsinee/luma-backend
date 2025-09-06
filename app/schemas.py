@@ -170,4 +170,15 @@ class UserWordProgress(BaseModel):
     class Config:
         from_attributes = True
 
+# --- Schemas for Study Endpoints ---
+class StudySessionCreate(BaseModel):
+    deck_id: str
+    session_type: SessionTypeEnum
+    score_percentage: Optional[int] = None
+    words_reviewed: int
+    duration_seconds: int
+
+class UserWordProgressUpdate(BaseModel):
+    status: StatusEnum
+
 Token.model_rebuild()
