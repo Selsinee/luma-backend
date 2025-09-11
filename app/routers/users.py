@@ -39,7 +39,7 @@ def update_user_me(
     """
     Updates the profile of the currently authenticated user.
     """
-    return crud.update_user_profile(db=db, user=current_user, profile_update=profile_update)
+    return crud.update_user_profile(db=db, user_id=current_user.id, profile_update=profile_update)
 
 
 @router.put("/me/settings", response_model=schemas.User, operation_id="update_settings")
@@ -51,7 +51,7 @@ def update_user_me_settings(
     """
     Updates user-specific settings for the currently authenticated user.
     """
-    return crud.update_user_settings(db=db, user=current_user, settings_update=settings_update)
+    return crud.update_user_settings(db=db, user_id=current_user.id, settings_update=settings_update)
 
 
 @router.get("/me/achievements", response_model=List[schemas.AchievementDetail], operation_id="get_achievements")
@@ -65,12 +65,12 @@ def read_user_me_achievements(
     return crud.get_achievements_for_user(db=db, user_id=current_user.id)
 
 
-@router.get("/me/stats", response_model=schemas.UserStats, operation_id="get_stats")
+@router.get("/me/stats", response_model=schemas.UserDashboardStats, operation_id="get_stats")
 def read_user_me_stats(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user)
 ):
     """
-    Fetches aggregated statistics for the user's profile dashboards.
+    Fetches a comprehensive set of statistics for the user's profile dashboards.
     """
-    return crud.get_user_stats(db=db, user_id=current_user)
+    return crud.get_user_stats(db=db, user=current_user)

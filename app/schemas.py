@@ -56,11 +56,29 @@ class UserSettingsUpdate(BaseModel):
     dark_mode_enabled: Optional[bool] = None
 
 # --- Schemas for Stats and Achievements Responses ---
-class UserStats(BaseModel):
+class WeeklyActivity(BaseModel):
+    day: str  # e.g., "Mon", "Tue"
+    words_studied: int
+
+class MonthlyProgress(BaseModel):
+    month: str  # e.g., "Jan", "Feb"
+    words_studied: int
+
+class DifficultyBreakdown(BaseModel):
+    easy: int
+    medium: int
+    hard: int
+
+class UserDashboardStats(BaseModel):
     study_time_seconds: int
     accuracy_rate: float
     total_words_mastered: int
     days_active: int
+    weekly_words_goal: int
+    weekly_words_progress: int
+    monthly_progress: List[MonthlyProgress]
+    difficulty_breakdown: DifficultyBreakdown
+    weekly_activity: List[WeeklyActivity]
 
 class AchievementDetail(BaseModel):
     id: str
